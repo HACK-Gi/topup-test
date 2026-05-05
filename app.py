@@ -394,6 +394,12 @@ def check_payment():
         
         # Use the new API endpoint to check payment status
        # ពិនិត្យស្ថានភាពទូទាត់តាម API ថ្មី
+:
+    payment_data = response.json()
+    if "successful" in payment_data.get('message', '').lower():
+        status = "PAID"
+    else:
+   # ពិនិត្យស្ថានភាពទូទាត់តាម API ថ្មី
 response = requests.get(
     f"https://khqr-api.netlify.app/.netlify/functions/api/verify",
     params={'md5': md5_hash},
@@ -406,73 +412,6 @@ if response.status_code == 200:
         status = "PAID"
     else:
         status = "UNPAID"
-                
-                # Move to completed
-                completed_transaction = {
-                    **transaction,
-                    'transaction_id': transaction_id,
-                    'status': 'completed',
-                    'timestamp': datetime.now().isoformat(),
-                    'telegram_sent': False
-                }
-                transactions['completed'].append(completed_transaction)
-                # Remove from pending if exists
-                transactions['pending'] = [t for t in transactions['pending'] 
-                                         if t['transaction_id'] != transaction_id]
-                save_transactions(transactions)
-                
-                # Send to Telegram only once
-                send_to_telegram(completed_transaction)
-                
-                # Update transaction to mark Telegram as sent
-                for t in transactions['completed']:
-                    if t['transaction_id'] == transaction_id:
-                        t['telegram_sent'] = True
-                save_transactions(transactions)
-                
-                # Remove from current transactions to prevent future checks
-                if transaction_id in current_transactions:
-                    del current_transactions[transaction_id]
-                
-                return jsonify({
-                    'status': 'PAID',
-                    'message': f'Payment of ${amount:.2f} បានទទួលប្រាក់!',
-                    'amount': amount,
-                    'final': True  # This is the final status
-                })
-                
-            elif status == "UNPAID":
-                # Add to pending if not already there
-                if not any(t['transaction_id'] == transaction_id for t in transactions['pending']):
-                    transactions['pending'].append({
-                        **transaction,
-                        'transaction_id': transaction_id,
-                        'status': 'pending',
-                        'timestamp': datetime.now().isoformat()
-                    })
-                    save_transactions(transactions)
-                    
-                return jsonify({
-                    'status': 'UNPAID',
-                    'message': 'មិនទាន់ទូទាត់ប្រាក់',
-                    'final': False  # Can continue checking
-                })
-            else:
-                return jsonify({
-                    'status': 'ERROR',
-                    'message': f'Status: {status}',
-                    'final': False
-                })
-        else:
-            return jsonify({
-                'status': 'ERROR',
-                'message': 'Failed to check payment status',
-                'final': False
-            })
-            
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
 # Update the admin_packages and admin_special_offers routes to include HOK
 @app.route('/admin/packages')
 @admin_required
