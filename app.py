@@ -117,7 +117,7 @@ DEFAULT_PACKAGES = {
         {"name": "MEB", "price": 4.60, "package_id": "meb"}
     ],
     "ff": [
-        {"name": "25", "price": 0.28, "package_id": "25"},
+        {"name": "25", "price": 0.01, "package_id": "25"},
         {"name": "100", "price": 0.94, "package_id": "100"},
         {"name": "310", "price": 2.79, "package_id": "310"},
         {"name": "520", "price": 4.25, "package_id": "520"},
