@@ -393,14 +393,19 @@ def check_payment():
         md5_hash = transaction['md5_hash']
         
         # Use the new API endpoint to check payment status
-        response = requests.get(f"https://api.bakong-api.online/check_by_md5?md5={md5_hash}", timeout=6)
-        
-        if response.status_code == 200:
-            payment_data = response.json()
-            status = payment_data.get('status', 'UNPAID')
-            
-            if status == "PAID":
-                amount = transaction['amount']
+       # ពិនិត្យស្ថានភាពទូទាត់តាម API ថ្មី
+response = requests.get(
+    f"https://khqr-api.netlify.app/.netlify/functions/api/verify",
+    params={'md5': md5_hash},
+    timeout=5
+)
+
+if response.status_code == 200:
+    payment_data = response.json()
+    if "successful" in payment_data.get('message', '').lower():
+        status = "PAID"
+    else:
+        status = "UNPAID"
                 
                 # Move to completed
                 completed_transaction = {
