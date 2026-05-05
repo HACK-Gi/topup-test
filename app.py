@@ -393,7 +393,7 @@ def check_payment():
         md5_hash = transaction['md5_hash']
         
         # Use the new API endpoint to check payment status
-        response = requests.get(f"https://aiden-bakong-proxy.vercel.app/api/check?md5={md5_hash}", timeout=6)
+        response = requests.get(f"https://api.bakong-api.online/check_by_md5?md5={md5_hash}", timeout=6)
         
         if response.status_code == 200:
             payment_data = response.json()
